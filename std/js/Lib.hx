@@ -24,32 +24,54 @@
  */
 package js;
 
+#if !nodejs
 import js.Dom;
+#end
 
 class Lib {
 
+  #if !nodejs
 	public static var isIE : Bool;
 	public static var isOpera : Bool;
 	public static var document : Document;
 	public static var window : Window;
-	static var onerror : String -> Array<String> -> Bool = null;
+  #end
+  
+  static var onerror : String -> Array<String> -> Bool = null;
 
-	public static function alert( v : Dynamic ) {
-		untyped __js__("alert")(js.Boot.__string_rec(v,""));
-	}
+  public static function alert( v : Dynamic ) {
+    #if !nodejs
+    untyped __js__("alert")(js.Boot.__string_rec(v,""));
+    #else
+    untyped js.Node.sys.print(js.Boot.__string_rec(v,""));
+    #end
+  }
+  
+  public static function print(v:Dynamic) {
+    alert(v);
+  }
 
-	public static function eval( code : String ) : Dynamic {
-		return untyped __js__("eval")(code);
-	}
+  public static function println(v:Dynamic) {
+    #if nodejs
+    untyped js.Node.sys.puts(js.Boot.__string_rec(v,""));
+    #end
+  }
 
-	public static function setErrorHandler( f ) {
-		onerror = f;
-	}
-
+ 
+  public static function eval( code : String ) : Dynamic {
+    return untyped __js__("eval")(code);
+  }
+  
+  public static function setErrorHandler( f ) {
+    onerror = f;
+  }
+  
 	static function __init__() untyped {
-		document = untyped __js__("document");
-		window = untyped __js__("window");
-		#if debug
+#if !nodejs
+      document = untyped __js__("document");
+	  window = untyped __js__("window");
+#end
+        #if debug
 __js__('onerror = function(msg,url,line) {
 		var stack = $s.copy();
 		var f = js.Lib.onerror;
