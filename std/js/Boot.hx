@@ -24,6 +24,10 @@
  */
 package js;
 
+#if nodejs
+import js.Node;
+#end
+
 class Boot {
 
 	private static function __unhtml(s : String) {
@@ -36,7 +40,10 @@ class Boot {
 			#if jsfl
 			msg += __string_rec(v,"");
 			fl.trace(msg);
-			#else
+			#elseif nodejs
+            msg += __string_rec(v,"");
+            Node.sys.puts(msg);
+            #else
 			msg += __unhtml(__string_rec(v,""))+"<br/>";
 			var d = document.getElementById("haxe:trace");
 			if( d == null )
@@ -193,8 +200,10 @@ class Boot {
 
 	private static function __init() {
 		untyped {
+          #if !nodejs
 			Lib.isIE = (__js__("typeof document!='undefined'") && document.all != null && __js__("typeof window!='undefined'") && window.opera == null );
 			Lib.isOpera = (__js__("typeof window!='undefined'") && window.opera != null );
+         #end
 #if js_namespace
 			__js__("eval(js.Boot.__ns).Array = Array");
 			__js__("eval(js.Boot.__ns).String = String");
