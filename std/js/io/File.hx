@@ -76,7 +76,7 @@ class File {
   }
 
   public static function stdin() {
-    return new FileInput();
+    //return new FileInput();
   }
   
   /*
