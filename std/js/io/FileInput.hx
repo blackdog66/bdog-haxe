@@ -42,8 +42,9 @@ class FileInput extends haxe.io.Input {
 
 	public override function readByte() : Int {
 		return try {
-			Node.fs.readSync(__f,buf,0,1,null);
-      return buf[0];
+			//Node.fs.readSync(__f,buf,0,1,null);
+      //return buf[0];
+      0;
 		} catch( e : Dynamic ) {
 			if( untyped __dollar__typeof(e) == __dollar__tarray )
 				throw new haxe.io.Eof();
@@ -54,8 +55,9 @@ class FileInput extends haxe.io.Input {
 
 	public override function readBytes( s : haxe.io.Bytes, p : Int, l : Int ) : Int {
 		return try {
-      Node.fs.readSync(__f,buf,0,
-			file_read(__f,s.getData(),p,l);
+      //  Node.fs.readSync(__f,buf,0,
+                       //file_read(__f,s.getData(),p,l);
+       0;
 		} catch( e : Dynamic ) {
 			if( untyped __dollar__typeof(e) == __dollar__tarray )
 				throw new haxe.io.Eof();
@@ -65,7 +67,7 @@ class FileInput extends haxe.io.Input {
 	}
 
 	public override function close() {
-		Node.fs.close(__f);
+		//Node.fs.close(__f);
 		//file_close(__f);
 	}
 
