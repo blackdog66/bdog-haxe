@@ -26,25 +26,32 @@ package js.io;
 
 import js.io.File;
 import js.Node;
-
+import haxe.io.Bytes;
 /**
 	Use [neko.io.File.read] to create a [FileInput]
 **/
 class FileInput extends haxe.io.Input {
 
-	private var __f : FileHandle;
-  private var buf:Buffer;
-
+	private var __f : Int;
+  private var bufOne:Buffer;
+  private var seekTo:Null<Int>;
+  private var tellPos:Int;
+  private var size:Int;
+  
 	public function new(f) {
-		__f = f;
-    buf = Node.newBuffer(512);
+		untyped __f = f;
+    bufOne = Node.newBuffer(1);
+    seekTo = null;
+    tellPos = 0;
+    size = Node.fs.fstatSync(__f).size;
+    trace("Size is "+size);
 	}
 
 	public override function readByte() : Int {
 		return try {
-			//Node.fs.readSync(__f,buf,0,1,null);
-      //return buf[0];
-      0;
+			tellPos += Node.fs.readSync(__f,bufOne,0,1,seekTo);
+      seekTo = tellPos;
+      bufOne[0];
 		} catch( e : Dynamic ) {
 			if( untyped __dollar__typeof(e) == __dollar__tarray )
 				throw new haxe.io.Eof();
@@ -55,9 +62,11 @@ class FileInput extends haxe.io.Input {
 
 	public override function readBytes( s : haxe.io.Bytes, p : Int, l : Int ) : Int {
 		return try {
-      //  Node.fs.readSync(__f,buf,0,
-                       //file_read(__f,s.getData(),p,l);
-       0;
+      var bb = Node.newBuffer(l),
+        bytesRead = Node.fs.readSync(__f,bb,0,l,seekTo);
+      seekTo = tellPos += bytesRead;
+      s.blit(p,Bytes.ofData(bb),0,bb.length);
+      bytesRead;
 		} catch( e : Dynamic ) {
 			if( untyped __dollar__typeof(e) == __dollar__tarray )
 				throw new haxe.io.Eof();
@@ -67,23 +76,20 @@ class FileInput extends haxe.io.Input {
 	}
 
 	public override function close() {
-		//Node.fs.close(__f);
-		//file_close(__f);
+		Node.fs.closeSync(untyped __f);
 	}
 
 	public function seek( p : Int, pos : FileSeek ) {
-		//file_seek(__f,p,switch( pos ) { case SeekBegin: 0; case SeekCur: 1; case SeekEnd: 2; });
+    if (pos != SeekBegin) throw "I only do SeekBegin";
+    seekTo = tellPos = p;
 	}
 
 	public function tell() : Int {
-		//return file_tell(__f);
-    return 0;
+    return tellPos ;
 	}
 
-
 	public function eof() : Bool {
-		//return file_eof(__f);
-    return false;
+    return tellPos >= size;
 	}
 
 }

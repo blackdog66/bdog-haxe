@@ -30,19 +30,22 @@ import js.io.File;
 **/
 class FileOutput extends haxe.io.Output {
 
-	private var __f : FileHandle;
+	private var __f : Int;
 
 	public function new(f) {
-		__f = f;
+		__f = untyped f;
 	}
 
 	public override function writeByte( c : Int ) {
-    //try js.Node.fs.writeSync(__f,c,Node.BINARY) catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
+    try{
+      js.Node.fs.writeSync(__f,c,Node.BINARY);
+    } catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
 	}
 
 	public override function writeBytes( s : haxe.io.Bytes, p : Int, l : Int ) : Int {
-    //return try js.Node.fs.writeSync(__f,s.getData().toString,p,Node.BINARY) catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
-    return 0;
+    return try
+      js.Node.fs.writeSync(__f,s.getData().toString,p,Node.BINARY)
+        catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
 	}
 
 	public override function flush() {

@@ -32,7 +32,7 @@ class BytesBuffer {
 	var b : flash.utils.ByteArray;
 	#elseif php
 	var b : String;
-	#elseif cpp
+  #elseif cpp 
 	var b : BytesData;
 	#else
 	var b : Array<Int>;
@@ -46,7 +46,7 @@ class BytesBuffer {
 		#elseif php
 		b = "";
 		#elseif cpp
-		b = new BytesData();
+		b = new BytesData();    
 		#else
 		b = new Array();
 		#end
@@ -112,7 +112,11 @@ class BytesBuffer {
 		b.position = 0;
 		#elseif php
 		var bytes = new Bytes(b.length, cast b);
-		#else
+		#elseif nodejs
+    var
+      nb = js.Node.newBuffer(b);
+      bytes = new Bytes(nb.length,nb);
+    #else
 		var bytes = new Bytes(b.length,b);
 		#end
 		b = null;
