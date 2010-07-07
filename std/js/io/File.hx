@@ -25,6 +25,7 @@
 
 package js.io;
 
+import haxe.io.Bytes;
 import js.Node;
 
 
@@ -43,26 +44,27 @@ enum FileSeek {
 
 class File {
 
-  public static function getContent( path : String ) {
-    return Node.fs.readFileSync(path,'ascii');
+  public static function getContent( path : String ):String {
+    return Node.fs.readFileSync(path,Node.UTF8);
   }
   
-  public static function getBytes( path : String ) {
-    return Node.fs.readFileSync(path,js.Node.BINARY);
+  public static function getBytes( path : String ):haxe.io.Bytes {
+    var buf:Buffer = untyped Node.fs.readFileSync(path); // without encoding returns a buffer
+    return Bytes.ofData(buf);
   }
   
-  public static function read( path : String, binary : Bool ) {
+  public static function read( path : String, binary : Bool ) {    
     var fd = Node.fs.openSync(path,"r+");
     return new FileInput(untyped fd);
   }
   
   public static function write( path : String, binary : Bool ) {
-    var fd = Node.fs.openSync(path,"w+");
+    var fd = Node.fs.openSync(path,"w");
     return new FileOutput(untyped fd);
   }
   
   public static function append( path : String, binary : Bool ) {
-    var fd = Node.fs.openSync(path,"a+");
+    var fd = Node.fs.openSync(path,"a");
     return new FileOutput(untyped fd);
   }
   
@@ -75,8 +77,11 @@ class File {
     return -1;
   }
 
-  public static function stdin() {
-    //return new FileInput();
+  public static function stdinAsync(cb:FileInput->Void) {
+    var s = Node.process.openStdin();
+    s.addListener('fd',function(fd) {
+        cb(new FileInput(fd));
+      });
   }
   
   /*
