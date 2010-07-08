@@ -34,23 +34,20 @@ class FileInput extends haxe.io.Input {
 
 	private var __f : Int;
   private var bufOne:Buffer;
-  private var seekTo:Null<Int>;
-  private var tellPos:Int;
+  private var pos:Int;
   private var size:Int;
   
 	public function new(f) {
 		untyped __f = f;
     bufOne = Node.newBuffer(1);
-    seekTo = null;
-    tellPos = 0;
+    pos = 0;
     size = Node.fs.fstatSync(__f).size;
     trace("Size is "+size);
 	}
 
 	public override function readByte() : Int {
 		return try {
-			tellPos += Node.fs.readSync(__f,bufOne,0,1,seekTo);
-      seekTo = tellPos;
+			pos += Node.fs.readSync(__f,bufOne,0,1,pos);
       bufOne[0];
 		} catch( e : Dynamic ) {
 			if( untyped __dollar__typeof(e) == __dollar__tarray )
@@ -63,8 +60,8 @@ class FileInput extends haxe.io.Input {
 	public override function readBytes( s : haxe.io.Bytes, p : Int, l : Int ) : Int {
 		return try {
       var bb = Node.newBuffer(l),
-        bytesRead = Node.fs.readSync(__f,bb,0,l,seekTo);
-      seekTo = tellPos += bytesRead;
+        bytesRead = Node.fs.readSync(__f,bb,0,l,pos);
+      pos += bytesRead;
       s.blit(p,Bytes.ofData(bb),0,bb.length);
       bytesRead;
 		} catch( e : Dynamic ) {
@@ -79,17 +76,17 @@ class FileInput extends haxe.io.Input {
 		Node.fs.closeSync(untyped __f);
 	}
 
-	public function seek( p : Int, pos : FileSeek ) {
-    if (pos != SeekBegin) throw "I only do SeekBegin";
-    seekTo = tellPos = p;
+	public function seek( p : Int, at : FileSeek ) {
+    if (at != SeekBegin) throw "I only do SeekBegin";
+    pos = p;
 	}
 
 	public function tell() : Int {
-    return tellPos ;
+    return pos ;
 	}
 
 	public function eof() : Bool {
-    return tellPos >= size;
+    return pos >= size;
 	}
 
 }
