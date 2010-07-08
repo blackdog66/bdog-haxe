@@ -24,6 +24,7 @@
  */
 package js.io;
 import js.io.File;
+import js.Node;
 
 /**
 	Use [neko.io.File.write] to create a [FileOutput]
@@ -31,40 +32,46 @@ import js.io.File;
 class FileOutput extends haxe.io.Output {
 
 	private var __f : Int;
+  private var bufOne:Buffer;
+  private var pos:Int;
 
 	public function new(f) {
 		__f = untyped f;
+    bufOne = Node.newBuffer(1);
+    pos = 0;
 	}
 
 	public override function writeByte( c : Int ) {
+    trace("doing writeByte with "+String.fromCharCode(c));
     try{
-      js.Node.fs.writeSync(__f,c,Node.BINARY);
+      bufOne[0] = c;
+      pos += Node.fs.writeSync(__f,bufOne,0,1,pos);
     } catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
 	}
 
 	public override function writeBytes( s : haxe.io.Bytes, p : Int, l : Int ) : Int {
-    return try
-      js.Node.fs.writeSync(__f,s.getData().toString,p,Node.BINARY)
-        catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
+    trace("doing writeBytes with "+s.toString());
+    return try {
+      pos += Node.fs.writeSync(__f,s.getData().slice(p,p+l),0,l,pos);
+    } catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
 	}
 
 	public override function flush() {
       //file_flush(__f);
+    trace("calling flush");
 	}
 
 	public override function close() {
-		super.close();
-		//closeSync(__f);
+		Node.fs.closeSync(__f);
 	}
 
-	public function seek( p : Int, pos : FileSeek ) {
-      //TODO
-      //		file_seek(__f,p,switch( pos ) { case SeekBegin: 0; case SeekCur: 1; case SeekEnd: 2; });
-	}
+	public function seek( p : Int, at : FileSeek ) {
+    if (at != SeekBegin) throw "I only do SeekBegin";
+    pos = p;
+  }
 
 	public function tell() : Int {
-      //TODO
-        return -1;
+    return pos;
 	}
 
 }
