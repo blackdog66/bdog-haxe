@@ -591,7 +591,11 @@ let generate_package_create ctx (p,_) =
 			Hashtbl.add ctx.packages (p :: acc) ();
 			(match acc with
 			| [] ->
-				print ctx "if(typeof %s=='undefined') %s = {}" p p;
+                if ctx.com.js_namespace = Some "exports" then
+                  print ctx "if(typeof %s=='undefined') var %s = {} ; exports.%s = %s; "
+                    p p p p
+                else
+				  print ctx "if(typeof %s=='undefined') %s = {}" p p;
 			| _ -> 
 				let p = String.concat "." (List.rev acc) ^ (field p) in
 		        print ctx "if(!%s) %s = {}" p p);
