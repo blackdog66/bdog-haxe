@@ -136,7 +136,7 @@ typedef NodeFS = {
   function mkdir(path:String,mode:Int,cb:NodeErr->Void):Void;
   function readdir(path:String,cb:NodeErr->Array<String>->Void):Void;
   function close(fd:Int,cb:NodeErr->Void):Void;
-  function open(path:String,flags:Int,mode:Int,cb:NodeErr->Int->Void):Void;
+  function open(path:String,flags:String,mode:Int,cb:NodeErr->Int->Void):Void;
   function write(fd:Int,buffer:Buffer,offset:Int,length:Int,position:Null<Int>,cb:NodeErr->Int->Void):Void;
   function read(fd:Int,buffer:Buffer,offset:Int,length:Int,position:Int,cb:NodeErr->Int->Void):Void;
   function truncate(fd:Int,len:Int,cb:NodeErr->Void):Void;
@@ -218,7 +218,7 @@ typedef ClientRequest = { > EventEmitter,
   function end():Void;
 }
 
-typedef Client = {
+typedef Client = { > EventEmitter,
   function request(method:String,path:String,?headers:Dynamic):ClientRequest;
   function verifyPeer():Bool;
   function getPeerCertificate():PeerCert;
@@ -339,6 +339,7 @@ class Node {
   public static inline var BINARY = "binary";
   
   //events - thanks tmedema
+  public static inline var EVENT_ERROR = "error";
   public static inline var EVENT_EVENTEMITTER_NEWLISTENER = "newListener";
   public static inline var EVENT_EVENTEMITTER_ERROR = "error";
   public static inline var EVENT_STREAM_DATA = "data";
@@ -366,6 +367,13 @@ class Node {
   public static inline var EVENT_CLIENTRESPONSE_END = "end";
   public static inline var EVENT_NETSERVER_CONNECTION = "connection";
   public static inline var EVENT_NETSERVER_CLOSE = "close";
+
+  public static inline var FILE_READ = "r";
+  public static inline var FILE_READ_APPEND = "r+";
+  public static inline var FILE_WRITE = "w";
+  public static inline var FILE_WRITE_APPEND = "w+";
+  public static inline var FILE_READWRITE = "a";
+  public static inline var FILE_READWRITE_APPEND = "a+";
 
   public static var require:String->Dynamic;
   public static var paths:String;
