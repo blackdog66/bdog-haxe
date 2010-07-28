@@ -79,7 +79,7 @@ class FileSystem {
   }
   
   public static function createDirectory( path : String ) {
-    Node.fs.mkdirSync(path,0777);
+    Node.fs.mkdirSync(path,493);
   }
   
   public static function deleteFile( path : String ) {
