@@ -42,7 +42,6 @@ class FileOutput extends haxe.io.Output {
 	}
 
 	public override function writeByte( c : Int ) {
-    trace("doing writeByte with "+String.fromCharCode(c));
     try{
       bufOne[0] = c;
       pos += Node.fs.writeSync(__f,bufOne,0,1,pos);
@@ -50,9 +49,10 @@ class FileOutput extends haxe.io.Output {
 	}
 
 	public override function writeBytes( s : haxe.io.Bytes, p : Int, l : Int ) : Int {
-    trace("doing writeBytes with "+s.toString());
-    return try {
-      pos += Node.fs.writeSync(__f,s.getData().slice(p,p+l),0,l,pos);
+    return try { 
+      var nw = Node.fs.writeSync(__f,s.getData().slice(p,p+l),0,l,pos);
+      pos += nw;
+      nw;
     } catch( e : Dynamic ) throw haxe.io.Error.Custom(e);
 	}
 
