@@ -59,7 +59,7 @@ class File {
   }
   
   public static function write( path : String, binary : Bool ) {
-    var fd = Node.fs.openSync(path,"w");
+    var fd = Node.fs.openSync(path,"w+");
     return new FileOutput(untyped fd);
   }
   
